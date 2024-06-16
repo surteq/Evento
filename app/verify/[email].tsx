@@ -18,8 +18,8 @@ import Colors from "@/constants/Colors";
 const CELL_COUNT = 6;
 
 const Page = () => {
-  const { phone, signin } = useLocalSearchParams<{
-    phone: string;
+  const { email, signin } = useLocalSearchParams<{
+    email: string;
     signin: string;
   }>();
   const [code, setCode] = useState("");
@@ -44,12 +44,20 @@ const Page = () => {
 
   const verifyCode = async () => {
     try {
-      await signUp!.attemptPhoneNumberVerification({
+      // console.log("Attempting email verification with code:", code);
+      const signUpAttempt = await signUp!.attemptEmailAddressVerification({
         code,
       });
-      await setActive!({ session: signUp!.createdSessionId });
+      // console.log(
+      //   "Email verification successful, setting session active:",
+      //   signUpAttempt
+      // );
+      await setActive!({ session: signUpAttempt.createdSessionId });
     } catch (err) {
-      console.log("error", JSON.stringify(err, null, 2));
+      console.error(
+        "Error during email verification:",
+        JSON.stringify(err, null, 2)
+      );
       if (isClerkAPIResponseError(err)) {
         if (err.errors[0].code === "form_identifier_not_found") {
           Alert.alert("Error", err.errors[0].message);
@@ -61,7 +69,7 @@ const Page = () => {
   const verifySignIn = async () => {
     try {
       await signIn!.attemptFirstFactor({
-        strategy: "phone_code",
+        strategy: "email_code",
         code,
       });
       await setActive!({ session: signIn!.createdSessionId });
@@ -79,7 +87,7 @@ const Page = () => {
     <View style={defaultStyles.container}>
       <Text style={defaultStyles.header}>6-digit code</Text>
       <Text style={defaultStyles.descriptionText}>
-        Code sent to {phone} unless you already have an account
+        Code sent to {email} unless you already have an account
       </Text>
 
       <Link href={"/login"} replace asChild>
@@ -102,7 +110,6 @@ const Page = () => {
         renderCell={({ index, symbol, isFocused }) => (
           <Fragment key={index}>
             <View
-              // Make sure that you pass onLayout={getCellOnLayoutHandler(index)} prop to root component of "Cell"
               onLayout={getCellOnLayoutHandler(index)}
               key={index}
               style={[styles.cellRoot, isFocused && styles.focusCell]}
@@ -151,4 +158,5 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
+
 export default Page;

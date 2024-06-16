@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { ResizeMode, Video } from "expo-av";
 import { useAssets } from "expo-asset";
 import React from "react";
@@ -7,11 +7,12 @@ import { defaultStyles } from "@/constants/Styles";
 import Colors from "@/constants/Colors";
 
 const Page = () => {
-  const [assets] = useAssets([require("@/assets/videos/kot.mp4")]);
+  // const [assets] = useAssets([require("@/assets/videos/kot.mp4")]);
+  //const [assets] = useAssets([require("@/assets/images/OIG3.png")]);
 
   return (
     <View style={styles.container}>
-      {assets && (
+      {/* {assets && (
         <Video
           resizeMode={ResizeMode.COVER}
           shouldPlay
@@ -20,9 +21,29 @@ const Page = () => {
           source={{ uri: assets[0].uri }}
           style={styles.video}
         />
-      )}
-      <View style={{ padding: 20, marginTop: 80 }}>
-        <Text style={styles.header}>Ready to change the way you money?</Text>
+      )} */}
+
+      <Image
+        source={require("@/assets/images/OIG3.png")}
+        style={styles.image}
+      ></Image>
+
+      {/* Overlay */}
+      <View style={styles.overlay}></View>
+
+      <View style={{ padding: 20, marginTop: 60 }}>
+        <Text style={styles.header}>Evento</Text>
+      </View>
+
+      <View
+        style={{
+          padding: 20,
+          marginTop: 480,
+        }}
+      >
+        <Text style={styles.text}>
+          Create interactive maps for places and events
+        </Text>
       </View>
 
       <View style={styles.buttons}>
@@ -56,22 +77,47 @@ const Page = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
+  // video: {
+  //   position: "absolute",
+  //   width: "100%",
+  //   height: "100%",
+  // },
   container: {
     flex: 1,
     justifyContent: "space-between",
+    position: "relative",
   },
-  video: {
+  image: {
     position: "absolute",
     width: "100%",
     height: "100%",
   },
+  overlay: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent overlay
+  },
   header: {
-    fontSize: 36,
+    fontSize: 50,
+    fontWeight: "900",
+    textTransform: "uppercase",
+    color: Colors.lightGray,
+    textAlign: "center",
+    textShadowColor: "rgba(79, 54, 82, 0.9)",
+    textShadowOffset: { width: 5, height: 5 },
+    textShadowRadius: 10,
+  },
+  text: {
+    fontSize: 30.5,
     fontWeight: "800",
     textTransform: "uppercase",
-    color: "white",
+    color: Colors.lightGray,
+    textAlign: "center",
+    textShadowColor: "rgba(79, 54, 82, 0.9)",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 10,
   },
   buttons: {
     flexDirection: "row",

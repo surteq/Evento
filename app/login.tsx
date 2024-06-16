@@ -15,52 +15,32 @@ import { Link, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { isClerkAPIResponseError, useSignIn } from "@clerk/clerk-expo";
 
-enum SingInType {
-  Phone,
-  Email,
-  Google,
-  Apple,
-}
-
 const Page = () => {
-  const [countryCode, setCountryCode] = useState("+48");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const keyboardVerticalOffset = Platform.OS === "ios" ? 80 : 0;
   const router = useRouter();
   const { signIn } = useSignIn();
+  const [error, setError] = useState<string | null>(null);
 
-  const onSignIn = async (type: SingInType) => {
-    if (type === SingInType.Phone) {
-      try {
-        const fullPhoneNumber = `${countryCode}${phoneNumber}`;
+  const onSignIn = async () => {
+    try {
+      const signInResponse = await signIn!.create({
+        identifier: email,
+        password,
+      });
 
-        const { supportedFirstFactors } = await signIn!.create({
-          identifier: fullPhoneNumber,
-        });
-        const firstPhoneFactor: any = supportedFirstFactors.find(
-          (factor: any) => {
-            return factor.strategy === "phone_code";
-          }
-        );
-
-        const { phoneNumberId } = firstPhoneFactor;
-
-        await signIn!.prepareFirstFactor({
-          strategy: "phone_code",
-          phoneNumberId,
-        });
-
-        router.push({
-          pathname: "/verify/[phone]",
-          params: { phoneNumber: fullPhoneNumber, signin: "true" },
-        });
-      } catch (err) {
-        console.log("error", JSON.stringify(err, null, 2));
-        if (isClerkAPIResponseError(err)) {
-          if (err.errors[0].code === "form_identifier_not_found") {
-            Alert.alert("Error", err.errors[0].message);
-          }
-        }
+      if (signInResponse.status === "complete") {
+        router.push("/(authenticated)/(tabs)/home");
+      } else {
+        // Handle other sign-in statuses if needed
+      }
+    } catch (err: any) {
+      console.error("Error signing in: ", JSON.stringify(err, null, 2));
+      if (isClerkAPIResponseError(err)) {
+        setError(err.errors[0].message);
+      } else {
+        setError(err.message || "An unexpected error occurred");
       }
     }
   };
@@ -74,104 +54,48 @@ const Page = () => {
       <View style={defaultStyles.container}>
         <Text style={defaultStyles.header}>Welcome back</Text>
         <Text style={defaultStyles.descriptionText}>
-          Enter the phone number assosiated with your account
+          Enter your email and password to log in
         </Text>
+        {error && (
+          <Text style={{ color: "red", marginBottom: 20 }}>{error}</Text>
+        )}
         <View style={styles.inputContainer}>
           <TextInput
-            style={[styles.input, { width: 80 }]}
-            placeholder="Country code"
+            style={styles.input}
+            placeholder="Email"
             placeholderTextColor={Colors.gray}
-            value={countryCode}
-          ></TextInput>
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
           <TextInput
-            style={[styles.input, { flex: 1 }]}
-            placeholder="Mobile number"
+            style={styles.input}
+            placeholder="Password"
             placeholderTextColor={Colors.gray}
-            keyboardType="numeric"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-          ></TextInput>
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
         </View>
-
         <TouchableOpacity
           style={[
             defaultStyles.pillButton,
-            phoneNumber !== "" ? styles.enabled : styles.disabled,
+            email !== "" && password !== "" ? styles.enabled : styles.disabled,
             { marginBottom: 20 },
           ]}
-          onPress={() => onSignIn(SingInType.Phone)}
+          onPress={onSignIn}
         >
           <Text style={defaultStyles.buttonText}>Continue</Text>
         </TouchableOpacity>
 
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
-          <View
-            style={{
-              flex: 1,
-              height: StyleSheet.hairlineWidth,
-              backgroundColor: Colors.gray,
-            }}
-          />
-          <Text style={{ color: Colors.gray, fontSize: 20 }}>or</Text>
-          <View
-            style={{
-              flex: 1,
-              height: StyleSheet.hairlineWidth,
-              backgroundColor: Colors.gray,
-            }}
-          />
-        </View>
-        <TouchableOpacity
-          onPress={() => onSignIn(SingInType.Email)}
-          style={[
-            defaultStyles.pillButton,
-            {
-              flexDirection: "row",
-              gap: 16,
-              marginTop: 20,
-              backgroundColor: "#fff",
-            },
-          ]}
-        >
-          <Ionicons name="mail" size={24} color={"#000"} />
-          <Text style={[defaultStyles.buttonText, { color: "#000" }]}>
-            Continue with email
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => onSignIn(SingInType.Email)}
-          style={[
-            defaultStyles.pillButton,
-            {
-              flexDirection: "row",
-              gap: 16,
-              marginTop: 20,
-              backgroundColor: "#fff",
-            },
-          ]}
-        >
-          <Ionicons name="logo-google" size={24} color={"#000"} />
-          <Text style={[defaultStyles.buttonText, { color: "#000" }]}>
-            Continue with google
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => onSignIn(SingInType.Email)}
-          style={[
-            defaultStyles.pillButton,
-            {
-              flexDirection: "row",
-              gap: 16,
-              marginTop: 20,
-              backgroundColor: "#fff",
-            },
-          ]}
-        >
-          <Ionicons name="logo-apple" size={24} color={"#000"} />
-          <Text style={[defaultStyles.buttonText, { color: "#000" }]}>
-            Continue with apple
-          </Text>
-        </TouchableOpacity>
+        <Link href={"/signup"} replace asChild>
+          <TouchableOpacity>
+            <Text style={defaultStyles.textLink}>
+              Don't have an account? Sign up
+            </Text>
+          </TouchableOpacity>
+        </Link>
       </View>
     </KeyboardAvoidingView>
   );
@@ -180,14 +104,13 @@ const Page = () => {
 const styles = StyleSheet.create({
   inputContainer: {
     marginVertical: 40,
-    flexDirection: "row",
   },
   input: {
     backgroundColor: Colors.lightGray,
     padding: 20,
     borderRadius: 16,
     fontSize: 20,
-    marginRight: 10,
+    marginBottom: 10,
   },
   enabled: {
     backgroundColor: Colors.primary,

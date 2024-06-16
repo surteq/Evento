@@ -6,23 +6,31 @@ import {
   Image,
   TextInput,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import * as ImagePicker from "expo-image-picker";
 
-const account = () => {
+const Account = () => {
   const { user } = useUser();
   const { signOut } = useAuth();
-  const [firstName, setFirstName] = useState(user?.firstName);
-  const [lastName, setLastName] = useState(user?.lastName);
+  const [username, setUsername] = useState(user?.username);
   const [edit, setEdit] = useState(false);
-  const [activeIcon, setActiveIcon] = useState("Default");
+  // const [initialUsernameSet, setInitialUsernameSet] = useState(false);
+
+  // useEffect(() => {
+  //   if (user && user.emailAddresses.length > 0 && !initialUsernameSet) {
+  //     const email = user.emailAddresses[0].emailAddress;
+  //     const defaultUsername = email.split("@")[0];
+  //     setUsername(defaultUsername);
+  //     setInitialUsernameSet(true);
+  //   }
+  // }, [user, initialUsernameSet]);
 
   const onSaveUser = async () => {
     try {
-      await user?.update({ firstName: firstName!, lastName: lastName! });
+      await user?.update({ username: username! });
       setEdit(false);
     } catch (err) {
       console.error(err);
@@ -67,9 +75,7 @@ const account = () => {
           <View style={{ alignItems: "center" }}>
             {!edit && (
               <View style={styles.editRow}>
-                <Text style={{ fontSize: 26, color: "#fff" }}>
-                  {firstName} {lastName}
-                </Text>
+                <Text style={{ fontSize: 26, color: "#fff" }}>{username}</Text>
                 <TouchableOpacity onPress={() => setEdit(true)}>
                   <Ionicons
                     name="ellipsis-horizontal"
@@ -83,15 +89,9 @@ const account = () => {
             {edit && (
               <View style={styles.editRow}>
                 <TextInput
-                  placeholder="First Name"
-                  value={firstName || ""}
-                  onChangeText={setFirstName}
-                  style={[styles.inputField]}
-                />
-                <TextInput
-                  placeholder="Last Name"
-                  value={lastName || ""}
-                  onChangeText={setLastName}
+                  placeholder="Username"
+                  value={username || ""}
+                  onChangeText={setUsername}
                   style={[styles.inputField]}
                 />
                 <TouchableOpacity onPress={onSaveUser}>
@@ -136,7 +136,6 @@ const account = () => {
 
 const styles = StyleSheet.create({
   editRow: {
-    // flex: 1,
     flexDirection: "row",
     gap: 12,
     alignItems: "center",
@@ -158,7 +157,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray,
   },
   inputField: {
-    width: 140,
+    width: 200,
     height: 44,
     borderWidth: 1,
     borderColor: Colors.gray,
@@ -179,4 +178,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default account;
+export default Account;

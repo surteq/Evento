@@ -6,6 +6,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import { defaultStyles } from "@/constants/Styles";
@@ -14,31 +15,35 @@ import { Link, useRouter } from "expo-router";
 import { useSignUp } from "@clerk/clerk-expo";
 
 const Page = () => {
-  const [countryCode, setCountryCode] = useState("+48");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const keyboardVerticalOffset = Platform.OS === "ios" ? 80 : 0;
   const router = useRouter();
   const { signUp } = useSignUp();
+  const [error, setError] = useState<string | null>(null);
 
   const onSignup = async () => {
-    console.log(phoneNumber);
-    const fullPhoneNumber = `${countryCode}${phoneNumber}`;
-    console.log(fullPhoneNumber);
-    router.push({
-      pathname: "/verify/[phone]",
-      params: { phone: fullPhoneNumber },
-    });
     try {
-      await signUp!.create({
-        phoneNumber: fullPhoneNumber,
+      // console.log("Creating user with email:", email);
+      const username = email.split("@")[0];
+      const signUpResponse = await signUp!.create({
+        emailAddress: email,
+        password: password,
+        username: username,
       });
-      signUp!.preparePhoneNumberVerification();
+      // console.log("User created successfully:", signUpResponse);
+      await signUp!.prepareEmailAddressVerification();
       router.push({
-        pathname: "/verify/[phone]",
-        params: { phoneNumber: fullPhoneNumber },
+        pathname: "/verify/[email]",
+        params: { email: email },
       });
-    } catch (error) {
-      console.error("Error signing up: ", error);
+    } catch (err: any) {
+      console.error("Error signing up: ", JSON.stringify(err, null, 2));
+      if (err.errors) {
+        setError(err.errors[0].message);
+      } else {
+        setError(err.message || "An unexpected error occurred");
+      }
     }
   };
 
@@ -51,23 +56,30 @@ const Page = () => {
       <View style={defaultStyles.container}>
         <Text style={defaultStyles.header}>Let's get started!</Text>
         <Text style={defaultStyles.descriptionText}>
-          Enter your phone number. We will send you a confirmation code there
+          Enter your email and password to sign up. We will send you a
+          confirmation code to your email.
         </Text>
+        {error && (
+          <Text style={{ color: "red", marginBottom: 20 }}>{error}</Text>
+        )}
         <View style={styles.inputContainer}>
           <TextInput
-            style={[styles.input, { width: 80 }]}
-            placeholder="Country code"
+            style={styles.input}
+            placeholder="Email"
             placeholderTextColor={Colors.gray}
-            value={countryCode}
-          ></TextInput>
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
           <TextInput
-            style={[styles.input, { flex: 1 }]}
-            placeholder="Mobile number"
+            style={styles.input}
+            placeholder="Password"
             placeholderTextColor={Colors.gray}
-            keyboardType="numeric"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-          ></TextInput>
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
         </View>
         <Link href={"/login"} replace asChild>
           <TouchableOpacity>
@@ -81,7 +93,7 @@ const Page = () => {
         <TouchableOpacity
           style={[
             defaultStyles.pillButton,
-            phoneNumber !== "" ? styles.enabled : styles.disabled,
+            email !== "" && password !== "" ? styles.enabled : styles.disabled,
             { marginBottom: 20 },
           ]}
           onPress={onSignup}
@@ -96,14 +108,13 @@ const Page = () => {
 const styles = StyleSheet.create({
   inputContainer: {
     marginVertical: 40,
-    flexDirection: "row",
   },
   input: {
     backgroundColor: Colors.lightGray,
     padding: 20,
     borderRadius: 16,
     fontSize: 20,
-    marginRight: 10,
+    marginBottom: 10,
   },
   enabled: {
     backgroundColor: Colors.primary,

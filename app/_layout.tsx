@@ -123,7 +123,7 @@ const InitialLayout = () => {
       />
 
       <Stack.Screen
-        name="verify/[phone]"
+        name="verify/[email]"
         options={{
           title: "",
           headerBackTitle: "",
