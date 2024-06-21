@@ -37,51 +37,51 @@ const Layout = () => {
         options={{
           title: "Home",
           tabBarIcon: ({ size, color }) => (
-            <FontAwesome name="registered" size={size} color={color} />
+            <FontAwesome name="home" size={size} color={color} />
           ),
           header: () => <CustomHeader />,
           headerTransparent: true,
         }}
       />
       <Tabs.Screen
-        name="invest"
+        name="mymaps"
         options={{
-          title: "Invest",
+          title: "My maps",
           tabBarIcon: ({ size, color }) => (
-            <FontAwesome name="line-chart" size={size} color={color} />
+            <FontAwesome name="map" size={size} color={color} />
           ),
           header: () => <CustomHeader />,
           headerTransparent: true,
         }}
       />
       <Tabs.Screen
-        name="transfers"
+        name="createmaps"
         options={{
-          title: "Transfers",
+          title: "Create map",
           tabBarIcon: ({ size, color }) => (
-            <FontAwesome name="exchange" size={size} color={color} />
+            <FontAwesome name="map-marker" size={size} color={color} />
           ),
           header: () => <CustomHeader />,
           headerTransparent: true,
         }}
       />
       <Tabs.Screen
-        name="crypto"
+        name="notifications"
         options={{
-          title: "Crypto",
+          title: "Notifications",
           tabBarIcon: ({ size, color }) => (
-            <FontAwesome name="bitcoin" size={size} color={color} />
+            <FontAwesome name="comment" size={size} color={color} />
           ),
           header: () => <CustomHeader />,
           headerTransparent: true,
         }}
       />
       <Tabs.Screen
-        name="lifestyle"
+        name="friends"
         options={{
-          title: "Lifestyle",
+          title: "Friends",
           tabBarIcon: ({ size, color }) => (
-            <FontAwesome name="th" size={size} color={color} />
+            <FontAwesome name="users" size={size} color={color} />
           ),
           header: () => <CustomHeader />,
           headerTransparent: true,

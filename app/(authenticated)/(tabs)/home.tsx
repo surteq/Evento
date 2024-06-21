@@ -1,57 +1,141 @@
+import RoundBtn from "@/components/RoundBtn";
+import WidgetList from "@/components/SortableList/WidgetList";
 import Colors from "@/constants/Colors";
 import { defaultStyles } from "@/constants/Styles";
+import { events } from "@/constants/events";
 import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 import {
   View,
   Text,
-  ScrollView,
   StyleSheet,
-  Button,
-  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  Image,
 } from "react-native";
-import { useHeaderHeight } from "@react-navigation/elements";
 
-const Page = () => {
-  const headerHeight = useHeaderHeight();
-
+export default function HomeScreen() {
   return (
-    <ScrollView
-      style={{ backgroundColor: Colors.background }}
-      contentContainerStyle={{
-        paddingTop: headerHeight,
-      }}
-    >
-      <Text style={[defaultStyles.sectionHeader, { color: "red" }]}>
-        TTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTranransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactionsTransactions
-      </Text>
+    <ScrollView style={styles.container}>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Popular</Text>
+        <View style={styles.actionRow}>
+          <RoundBtn icon={"map"} text={"Map"} />
+          <RoundBtn icon={"map-outline"} text={"Map"} />
+          <RoundBtn icon={"map"} text={"Map"} />
+          <RoundBtn icon={"map-outline"} text={"Map"} />
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Events nearby</Text>
+        <View style={styles.events}>
+          {events.length === 0 && (
+            <Text style={{ padding: 14, color: Colors.gray }}>
+              No events yet
+            </Text>
+          )}
+          {events.map((event) => (
+            <View
+              key={event.id}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 16,
+                marginBottom: 10,
+              }}
+            >
+              <View style={styles.circle}>
+                <Ionicons name="calendar" size={24} color={Colors.dark} />
+              </View>
+
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontWeight: "bold" }}>{event.title}</Text>
+                <Text style={{ color: Colors.gray, fontSize: 12 }}>
+                  {new Date(event.date).toLocaleDateString()}
+                </Text>
+                <Text style={{ color: Colors.gray, fontSize: 12 }}>
+                  {event.location}
+                </Text>
+                <Text style={{ color: Colors.gray, fontSize: 12 }}>
+                  {event.description}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <Text style={defaultStyles.sectionHeader}>Map Categories</Text>
+      <WidgetList />
     </ScrollView>
   );
-};
+}
+
 const styles = StyleSheet.create({
-  account: {
-    margin: 80,
-    alignItems: "center",
+  container: {
+    marginTop: 100,
+    flex: 1,
+    backgroundColor: "#fff",
   },
-  row: {
+  header: {
     flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "center",
-    gap: 10,
+    alignItems: "center",
+    padding: 10,
   },
-  balance: {
-    fontSize: 50,
-    fontWeight: "bold",
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
   },
-  currency: {
+  searchInput: {
+    flex: 1,
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+  },
+  section: {
+    padding: 10,
+  },
+  sectionTitle: {
     fontSize: 20,
-    fontWeight: "500",
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  mapCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#f5f5f5",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  eventList: {
+    // Add your styles for the event list here
+  },
+  categoryList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  categoryItem: {
+    backgroundColor: "#f5f5f5",
+    padding: 20,
+    borderRadius: 8,
+    margin: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "45%",
   },
   actionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 20,
   },
-  transactions: {
+  events: {
     marginHorizontal: 20,
     padding: 14,
     backgroundColor: "#fff",
@@ -67,4 +151,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-export default Page;

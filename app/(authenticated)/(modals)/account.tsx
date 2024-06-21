@@ -5,28 +5,30 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import * as ImagePicker from "expo-image-picker";
+import { useUserContext } from "@/app/contexts/UserContext";
 
 const Account = () => {
   const { user } = useUser();
   const { signOut } = useAuth();
-  const [username, setUsername] = useState(user?.username);
+  const { userImage, username, setUserImage, setUsername, loading } =
+    useUserContext();
   const [edit, setEdit] = useState(false);
-  // const [initialUsernameSet, setInitialUsernameSet] = useState(false);
 
-  // useEffect(() => {
-  //   if (user && user.emailAddresses.length > 0 && !initialUsernameSet) {
-  //     const email = user.emailAddresses[0].emailAddress;
-  //     const defaultUsername = email.split("@")[0];
-  //     setUsername(defaultUsername);
-  //     setInitialUsernameSet(true);
-  //   }
-  // }, [user, initialUsernameSet]);
+  useEffect(() => {
+    if (user?.imageUrl) {
+      setUserImage(user.imageUrl);
+    }
+    if (user?.username) {
+      setUsername(user.username);
+    }
+  }, [user]);
 
   const onSaveUser = async () => {
     try {
@@ -51,56 +53,56 @@ const Account = () => {
     if (!result.canceled) {
       const base64 = `data:image/png;base64,${result.assets[0].base64}`;
 
-      user?.setProfileImage({
+      await user?.setProfileImage({
         file: base64,
       });
+      setUserImage(user!.imageUrl); // Ustaw obrazek profilowy w kontekście
     }
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        paddingTop: 20,
-        backgroundColor: "rgba(0, 0, 0, 0.9)",
-      }}
-    >
+    <View style={styles.container}>
       <View style={{ alignItems: "center", paddingTop: 40 }}>
         <TouchableOpacity onPress={onCaptureImage} style={styles.captureBtn}>
-          {user?.imageUrl && (
-            <Image source={{ uri: user?.imageUrl }} style={styles.avatar} />
+          {userImage ? (
+            <Image source={{ uri: userImage }} style={styles.avatar} />
+          ) : (
+            <Text style={{ color: "#fff", fontWeight: "500", fontSize: 16 }}>
+              JK
+            </Text>
           )}
         </TouchableOpacity>
-        {user && (
-          <View style={{ alignItems: "center" }}>
-            {!edit && (
-              <View style={styles.editRow}>
-                <Text style={{ fontSize: 26, color: "#fff" }}>{username}</Text>
-                <TouchableOpacity onPress={() => setEdit(true)}>
-                  <Ionicons
-                    name="ellipsis-horizontal"
-                    size={24}
-                    color={"#fff"}
-                  />
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {edit && (
-              <View style={styles.editRow}>
-                <TextInput
-                  placeholder="Username"
-                  value={username || ""}
-                  onChangeText={setUsername}
-                  style={[styles.inputField]}
-                />
-                <TouchableOpacity onPress={onSaveUser}>
-                  <Ionicons name="checkmark-outline" size={24} color={"#fff"} />
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        )}
+        <View style={{ alignItems: "center" }}>
+          {!edit && (
+            <View style={styles.editRow}>
+              <Text style={{ fontSize: 26, color: "#fff" }}>{username}</Text>
+              <TouchableOpacity onPress={() => setEdit(true)}>
+                <Ionicons name="ellipsis-horizontal" size={24} color={"#fff"} />
+              </TouchableOpacity>
+            </View>
+          )}
+          {edit && (
+            <View style={styles.editRow}>
+              <TextInput
+                placeholder="Username"
+                value={username || ""}
+                onChangeText={setUsername}
+                style={[styles.inputField]}
+              />
+              <TouchableOpacity onPress={onSaveUser}>
+                <Ionicons name="checkmark-outline" size={24} color={"#fff"} />
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </View>
       <View style={styles.actions}>
         <TouchableOpacity style={styles.btn} onPress={() => signOut()}>
@@ -135,6 +137,16 @@ const Account = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   editRow: {
     flexDirection: "row",
     gap: 12,

@@ -11,6 +11,7 @@ import "react-native-reanimated";
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 import * as SecureStore from "expo-secure-store";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
+import { UserProvider } from "./contexts/UserContext";
 
 // Cache the Clerk JWT
 const tokenCache = {
@@ -168,10 +169,12 @@ const RootLayoutNav = () => {
       publishableKey={CLERK_PUBLISHABLE_KEY!}
       tokenCache={tokenCache}
     >
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar barStyle={"light-content"} />
-        <InitialLayout />
-      </GestureHandlerRootView>
+      <UserProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <StatusBar barStyle={"light-content"} />
+          <InitialLayout />
+        </GestureHandlerRootView>
+      </UserProvider>
     </ClerkProvider>
   );
 };

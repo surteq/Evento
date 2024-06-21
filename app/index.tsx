@@ -38,7 +38,7 @@ const Page = () => {
       <View
         style={{
           padding: 20,
-          marginTop: 480,
+          marginTop: 400,
         }}
       >
         <Text style={styles.text}>

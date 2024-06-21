@@ -4,15 +4,19 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  Image,
 } from "react-native";
 import React from "react";
 import Colors from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useUserContext } from "@/app/contexts/UserContext";
 // import { useSafeAreaInsets } from "react-native-safe-area-context";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const CustomHeader = () => {
   //   const { top } = useSafeAreaInsets();
+  const { userImage } = useUserContext();
   return (
     <View
       style={{ paddingTop: 40, backgroundColor: "rgba(245, 245, 245, 0.99)" }}
@@ -20,9 +24,11 @@ const CustomHeader = () => {
       <View style={styles.container}>
         <Link href="/(authenticated)/(modals)/account" asChild>
           <TouchableOpacity style={styles.roundBtn}>
-            <Text style={{ color: "#fff", fontWeight: "500", fontSize: 16 }}>
-              JK
-            </Text>
+            {userImage ? (
+              <Image source={{ uri: userImage }} style={styles.profileImage} />
+            ) : (
+              <FontAwesome name="user-o" size={24} color={Colors.lightGray} />
+            )}
           </TouchableOpacity>
         </Link>
         <View style={styles.searchSection}>
@@ -39,13 +45,15 @@ const CustomHeader = () => {
           />
         </View>
 
-        <View style={styles.circle}>
-          <Ionicons name="stats-chart" size={20} color={Colors.dark} />
-        </View>
+        <Link style={styles.circle} href={"/home"} replace asChild>
+          <TouchableOpacity>
+            <Ionicons name="home" size={20} color={Colors.dark} />
+          </TouchableOpacity>
+        </Link>
 
-        <View style={styles.circle}>
+        {/* <View style={styles.circle}>
           <Ionicons name="card" size={20} color={Colors.dark} />
-        </View>
+        </View> */}
       </View>
     </View>
   );
@@ -95,6 +103,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.lightGray,
     justifyContent: "center",
     alignItems: "center",
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
 });
 
