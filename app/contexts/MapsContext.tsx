@@ -1,15 +1,24 @@
 import React, { createContext, useState, useContext } from "react";
 
+interface Pin {
+  id: string;
+  type: "INFO" | "IMAGE" | "LINK";
+  content: string;
+  position: { x: number; y: number };
+}
+
 interface Map {
   id: string;
   title: string;
   description: string;
   image: string;
+  pins: Pin[]; // Nowe pole przechowujące pinezki
 }
 
 interface MapsContextType {
   maps: Map[];
   addMap: (map: Map) => void;
+  updateMapPins: (mapId: string, pins: Pin[]) => void; // Funkcja do aktualizacji pinezek na mapie
 }
 
 const MapsContext = createContext<MapsContextType | undefined>(undefined);
@@ -23,8 +32,17 @@ export const MapsProvider: React.FC<{ children: React.ReactNode }> = ({
     setMaps((prevMaps) => [map, ...prevMaps]);
   };
 
+  // Funkcja do aktualizacji pinezek na mapie
+  const updateMapPins = (mapId: string, pins: Pin[]) => {
+    setMaps((prevMaps) =>
+      prevMaps.map((map) =>
+        map.id === mapId ? { ...map, pins: [...pins] } : map
+      )
+    );
+  };
+
   return (
-    <MapsContext.Provider value={{ maps, addMap }}>
+    <MapsContext.Provider value={{ maps, addMap, updateMapPins }}>
       {children}
     </MapsContext.Provider>
   );

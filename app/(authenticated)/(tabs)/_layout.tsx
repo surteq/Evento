@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
 import React from "react";
-import { Tabs } from "expo-router";
+import { Stack, Tabs } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 // import { BlurView } from "expo-blur";
@@ -65,6 +65,7 @@ const Layout = () => {
           headerTransparent: true,
         }}
       />
+
       <Tabs.Screen
         name="notifications"
         options={{

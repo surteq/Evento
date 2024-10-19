@@ -11,17 +11,23 @@ import {
 import Colors from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useMapsContext } from "@/app/contexts/MapsContext";
+
+interface Pin {
+  id: string;
+  type: "INFO" | "IMAGE" | "LINK";
+  content: string;
+  position: { x: number; y: number };
+}
 
 interface Map {
   id: string;
   title: string;
   description: string;
   image: string;
+  pins: Pin[]; // Nowe pole przechowujące pinezki
 }
-
 const CreateMap = () => {
   const { addMap } = useMapsContext();
   const [title, setTitle] = useState("");
@@ -48,14 +54,16 @@ const CreateMap = () => {
       title,
       description,
       image: image || "",
+      pins: [], // Inicjalizujemy pole pins jako pustą tablicę
     };
     addMap(newMap);
     setTitle("");
     setDescription("");
     setImage(null);
+
     router.push({
       pathname: "/(authenticated)/(modals)/ViewMapModal",
-      params: { map: JSON.stringify(newMap) },
+      params: { mapId: newMap.id },
     });
   };
 

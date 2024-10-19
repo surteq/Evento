@@ -27,7 +27,7 @@ const MyMaps = () => {
     <Link
       href={{
         pathname: "/(authenticated)/(modals)/ViewMapModal",
-        params: { map: JSON.stringify(item) },
+        params: { mapId: item.id },
       }}
       asChild
     >

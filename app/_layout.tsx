@@ -160,6 +160,24 @@ const InitialLayout = () => {
           ),
         }}
       />
+      <Stack.Screen
+        name="(authenticated)/(modals)/EditMapModal"
+        options={{
+          presentation: "transparentModal",
+          animation: "fade",
+          title: "",
+          headerTransparent: true,
+          headerLeft: () => (
+            <TouchableOpacity onPress={router.back}>
+              <Ionicons
+                name="close-outline"
+                size={34}
+                color={Colors.lightGray}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
 
       <Stack.Screen
         name="(authenticated)/(modals)/account"
