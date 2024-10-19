@@ -18,6 +18,7 @@ interface Map {
 interface MapsContextType {
   maps: Map[];
   addMap: (map: Map) => void;
+  updateMap: (updatedMap: Map) => void;
   updateMapPins: (mapId: string, pins: Pin[]) => void; // Funkcja do aktualizacji pinezek na mapie
 }
 
@@ -32,6 +33,12 @@ export const MapsProvider: React.FC<{ children: React.ReactNode }> = ({
     setMaps((prevMaps) => [map, ...prevMaps]);
   };
 
+  const updateMap = (updatedMap: Map) => {
+    setMaps((prevMaps) =>
+      prevMaps.map((map) => (map.id === updatedMap.id ? updatedMap : map))
+    );
+  };
+
   // Funkcja do aktualizacji pinezek na mapie
   const updateMapPins = (mapId: string, pins: Pin[]) => {
     setMaps((prevMaps) =>
@@ -42,7 +49,7 @@ export const MapsProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <MapsContext.Provider value={{ maps, addMap, updateMapPins }}>
+    <MapsContext.Provider value={{ maps, addMap, updateMap, updateMapPins }}>
       {children}
     </MapsContext.Provider>
   );

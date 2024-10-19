@@ -13,6 +13,8 @@ import * as SecureStore from "expo-secure-store";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { UserProvider } from "./contexts/UserContext";
 import { MapsProvider } from "./contexts/MapsContext";
+import CustomHeader from "@/components/CustomHeader";
+import CustomHeaderMap from "@/components/CustomHeaderMap";
 
 // Cache the Clerk JWT
 const tokenCache = {
@@ -149,15 +151,16 @@ const InitialLayout = () => {
           animation: "fade",
           title: "",
           headerTransparent: true,
-          headerLeft: () => (
-            <TouchableOpacity onPress={router.back}>
-              <Ionicons
-                name="close-outline"
-                size={34}
-                color={Colors.lightGray}
-              />
-            </TouchableOpacity>
-          ),
+          header: () => <CustomHeaderMap />,
+          // headerLeft: () => (
+          //   <TouchableOpacity onPress={router.back}>
+          //     <Ionicons
+          //       name="close-outline"
+          //       size={34}
+          //       color={Colors.lightGray}
+          //     />
+          //   </TouchableOpacity>
+          // ),
         }}
       />
       <Stack.Screen
@@ -167,6 +170,7 @@ const InitialLayout = () => {
           animation: "fade",
           title: "",
           headerTransparent: true,
+          // header: () => <CustomHeaderMap />,
           headerLeft: () => (
             <TouchableOpacity onPress={router.back}>
               <Ionicons
