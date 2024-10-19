@@ -56,7 +56,7 @@ const Account = () => {
       await user?.setProfileImage({
         file: base64,
       });
-      setUserImage(user!.imageUrl); // Ustaw obrazek profilowy w kontekście
+      setUserImage(user!.imageUrl);
     }
   };
 
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.gray,
     borderRadius: 8,
     padding: 10,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.lightGray,
   },
   actions: {
     backgroundColor: "rgba(256, 256, 256, 0.1)",

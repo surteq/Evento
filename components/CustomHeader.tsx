@@ -47,7 +47,7 @@ const CustomHeader = () => {
 
         <Link style={styles.circle} href={"/home"} replace asChild>
           <TouchableOpacity>
-            <Ionicons name="home" size={20} color={Colors.dark} />
+            <Ionicons name="home" size={20} color={"#8A2BE2"} />
           </TouchableOpacity>
         </Link>
 

@@ -12,6 +12,7 @@ const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 import * as SecureStore from "expo-secure-store";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { UserProvider } from "./contexts/UserContext";
+import { MapsProvider } from "./contexts/MapsContext";
 
 // Cache the Clerk JWT
 const tokenCache = {
@@ -142,6 +143,25 @@ const InitialLayout = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="(authenticated)/(modals)/ViewMapModal"
+        options={{
+          presentation: "transparentModal",
+          animation: "fade",
+          title: "",
+          headerTransparent: true,
+          headerLeft: () => (
+            <TouchableOpacity onPress={router.back}>
+              <Ionicons
+                name="close-outline"
+                size={34}
+                color={Colors.lightGray}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+
+      <Stack.Screen
         name="(authenticated)/(modals)/account"
         options={{
           presentation: "transparentModal",
@@ -169,12 +189,14 @@ const RootLayoutNav = () => {
       publishableKey={CLERK_PUBLISHABLE_KEY!}
       tokenCache={tokenCache}
     >
-      <UserProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <StatusBar barStyle={"light-content"} />
-          <InitialLayout />
-        </GestureHandlerRootView>
-      </UserProvider>
+      <MapsProvider>
+        <UserProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <StatusBar barStyle={"light-content"} />
+            <InitialLayout />
+          </GestureHandlerRootView>
+        </UserProvider>
+      </MapsProvider>
     </ClerkProvider>
   );
 };
