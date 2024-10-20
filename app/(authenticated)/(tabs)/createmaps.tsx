@@ -26,7 +26,7 @@ interface Map {
   title: string;
   description: string;
   image: string;
-  pins: Pin[]; // Nowe pole przechowujące pinezki
+  pins: Pin[];
 }
 const CreateMap = () => {
   const { addMap } = useMapsContext();
@@ -38,8 +38,9 @@ const CreateMap = () => {
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
+      // allowsEditing: true,
+      // aspect: [9, 16],
+      allowsEditing: false,
       quality: 1,
     });
 
@@ -54,7 +55,7 @@ const CreateMap = () => {
       title,
       description,
       image: image || "",
-      pins: [], // Inicjalizujemy pole pins jako pustą tablicę
+      pins: [],
     };
     addMap(newMap);
     setTitle("");

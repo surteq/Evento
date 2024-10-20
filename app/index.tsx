@@ -7,9 +7,6 @@ import { defaultStyles } from "@/constants/Styles";
 import Colors from "@/constants/Colors";
 
 const Page = () => {
-  // const [assets] = useAssets([require("@/assets/videos/kot.mp4")]);
-  //const [assets] = useAssets([require("@/assets/images/OIG3.png")]);
-
   return (
     <View style={styles.container}>
       {/* {assets && (
@@ -78,11 +75,6 @@ const Page = () => {
   );
 };
 const styles = StyleSheet.create({
-  // video: {
-  //   position: "absolute",
-  //   width: "100%",
-  //   height: "100%",
-  // },
   container: {
     flex: 1,
     justifyContent: "space-between",
@@ -97,7 +89,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent overlay
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   header: {
     fontSize: 50,

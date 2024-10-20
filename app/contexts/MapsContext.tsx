@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext } from "react";
 
 interface Pin {
   id: string;
-  type: "INFO" | "IMAGE" | "LINK";
+  type: "INFO" | "IMAGE" | "LINK" | "AUDIO";
   content: string;
   position: { x: number; y: number };
 }
@@ -12,14 +12,14 @@ interface Map {
   title: string;
   description: string;
   image: string;
-  pins: Pin[]; // Nowe pole przechowujące pinezki
+  pins: Pin[];
 }
 
 interface MapsContextType {
   maps: Map[];
   addMap: (map: Map) => void;
   updateMap: (updatedMap: Map) => void;
-  updateMapPins: (mapId: string, pins: Pin[]) => void; // Funkcja do aktualizacji pinezek na mapie
+  updateMapPins: (mapId: string, pins: Pin[]) => void;
 }
 
 const MapsContext = createContext<MapsContextType | undefined>(undefined);
@@ -39,7 +39,6 @@ export const MapsProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
-  // Funkcja do aktualizacji pinezek na mapie
   const updateMapPins = (mapId: string, pins: Pin[]) => {
     setMaps((prevMaps) =>
       prevMaps.map((map) =>

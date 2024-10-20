@@ -8,17 +8,23 @@ import {
   Image,
   Dimensions,
   Linking,
+  Alert,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import * as ImagePicker from "expo-image-picker";
+import { Audio } from "expo-av";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useMapsContext } from "@/app/contexts/MapsContext";
-import { useRouter } from "expo-router"; // For navigating back
+import { useRouter } from "expo-router";
+import CloseButton from "@/components/CloseButton";
+import Pin from "@/components/PinProps";
+import UndoButton from "@/components/UndoButton";
+import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-interface Pin {
+interface PinData {
   id: string;
-  type: "INFO" | "IMAGE" | "LINK";
+  type: "INFO" | "IMAGE" | "LINK" | "AUDIO";
   content: string;
   position: { x: number; y: number };
 }
@@ -28,43 +34,80 @@ interface Map {
   title: string;
   description: string;
   image: string;
-  pins?: Pin[];
+  pins?: PinData[];
 }
 
 type EditMapModalRouteParams = {
-  mapId: string; // Pass mapId instead of the whole map
+  mapId: string;
 };
 
 const { width, height } = Dimensions.get("window");
 
 const EditMapModal = () => {
-  const { maps, updateMapPins } = useMapsContext(); // Access global maps
+  const { maps, updateMapPins } = useMapsContext();
   const route =
     useRoute<RouteProp<{ params: EditMapModalRouteParams }, "params">>();
   const router = useRouter();
 
-  // Find the current map from the global state using the mapId
   const map = maps.find((m) => m.id === route.params.mapId);
 
-  const [pinType, setPinType] = useState<"INFO" | "IMAGE" | "LINK">("INFO");
-  const [pinContent, setPinContent] = useState("");
+  const [pinType, setPinType] = useState<"INFO" | "IMAGE" | "LINK" | "AUDIO">(
+    "INFO"
+  );
+  const [pinContent, setPinContent] = useState<string | null>("");
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [audioUri, setAudioUri] = useState<string | null>(null);
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [history, setHistory] = useState<PinData[][]>([
+    ...(map?.pins ? [map.pins] : [[]]),
+  ]);
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+
+  const toggleDeleteMode = () => {
+    setIsDeleteMode((prevMode) => !prevMode);
+  };
+
+  const deletePin = (id: string) => {
+    const map = maps.find((m) => m.id === route.params.mapId);
+    const updatedPins = map?.pins?.filter((pin) => pin.id !== id) || [];
+    updateMapPins(map!.id, updatedPins);
+  };
 
   const addPin = (x: number, y: number) => {
-    const newPin: Pin = {
+    if (pinType !== "IMAGE" && pinContent?.trim() === "") {
+      Alert.alert("Error", "Please enter content for the pin.");
+      return;
+    }
+    if (pinType == "IMAGE" && !imageUri) {
+      Alert.alert("No Image", "Please upload or select an image first.");
+      return;
+    }
+
+    const newPin: PinData = {
       id: Date.now().toString(),
       type: pinType,
-      content: pinType === "IMAGE" ? imageUri || "" : pinContent,
-      position: { x, y },
+      content:
+        pinType === "IMAGE"
+          ? imageUri || ""
+          : pinType === "AUDIO"
+          ? audioUri || ""
+          : pinContent || "",
+      position: { x: x - 20, y: y - 40 },
     };
     const updatedPins = [...(map?.pins || []), newPin];
-    updateMapPins(map!.id, updatedPins); // Update the map pins globally
+    updateMapPins(map!.id, updatedPins);
+    setHistory((prevHistory) => [...prevHistory, updatedPins]);
+    console.log(`New pin added at position: X: ${x}, Y: ${y}`);
+    console.log(newPin);
+    setPinContent("");
+    setImageUri(null);
+    setAudioUri(null);
   };
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
+      allowsEditing: false,
       aspect: [4, 3],
       quality: 1,
     });
@@ -74,107 +117,183 @@ const EditMapModal = () => {
     }
   };
 
+  const startRecording = async () => {
+    try {
+      console.log("Requesting permissions..");
+      const permission = await Audio.requestPermissionsAsync();
+
+      if (permission.status !== "granted") {
+        Alert.alert("Permission to access audio was denied");
+        return;
+      }
+
+      console.log("Starting recording..");
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      setRecording(recording);
+      console.log("Recording started");
+    } catch (err) {
+      console.error("Failed to start recording", err);
+    }
+  };
+
+  const stopRecording = async () => {
+    if (recording) {
+      console.log("Stopping recording..");
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      setAudioUri(uri);
+      setPinContent(uri);
+      console.log("Recording stopped and stored at", uri);
+      setRecording(null);
+    } else {
+      console.warn("No active recording to stop");
+    }
+  };
+
   const handleMapPress = (e: any) => {
     const x = e.nativeEvent.locationX;
     const y = e.nativeEvent.locationY;
-    addPin(x, y); // Add pin to the global state
+    addPin(x, y);
   };
 
-  const saveMap = () => {
-    // router.push({
-    //   pathname: "/(authenticated)/(modals)/ViewMapModal",
-    //   params: { mapId: map?.id },
-    // });
-    router.back();
+  const undoLastPin = () => {
+    if (history.length > 1) {
+      const newHistory = [...history];
+      newHistory.pop();
+      const previousPins = newHistory[newHistory.length - 1];
+      setHistory(newHistory);
+      updateMapPins(map!.id, previousPins);
+    } else {
+      Alert.alert("No more actions to undo.");
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={handleMapPress}>
-        <Image
-          source={{ uri: map?.image }} // Display the map image
-          style={styles.image}
-        />
-      </TouchableOpacity>
-      {/* Display Pins on the Map */}
-      {map?.pins?.map((pin: Pin) => (
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
+      <View style={styles.container}>
+        <CloseButton onPress={router.back} />
+        <UndoButton onPress={undoLastPin} />
         <TouchableOpacity
-          key={pin.id}
-          style={[styles.pin, { left: pin.position.x, top: pin.position.y }]}
-          onPress={() => {
-            if (pin.type === "LINK") {
-              Linking.openURL(pin.content).catch((err) =>
-                console.error("Failed to open URL:", err)
-              );
-            }
-          }}
+          onPress={toggleDeleteMode}
+          style={styles.deleteToggleButton}
         >
-          {pin.type === "INFO" && (
-            <Text style={styles.pinText}>{pin.content}</Text>
-          )}
-          {pin.type === "IMAGE" && (
-            <Image source={{ uri: pin.content }} style={styles.pinImage} />
-          )}
-          {pin.type === "LINK" && (
-            <Ionicons name="link-outline" size={24} color={Colors.primary} />
-          )}
+          <Ionicons
+            name="trash"
+            size={24}
+            color={isDeleteMode ? Colors.primary : Colors.gray}
+          />
+          <Text>{isDeleteMode ? "Exit Delete Mode" : "Delete Mode"}</Text>
         </TouchableOpacity>
-      ))}
 
-      {/* Panel to Choose Pin Type */}
-      <View style={styles.pinPanel}>
-        <Text style={styles.header}>Choose Pin Type</Text>
-        <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={handleMapPress}>
+          <Image source={{ uri: map?.image }} style={styles.image} />
+        </TouchableOpacity>
+
+        {map?.pins?.map((pin: PinData) => (
           <TouchableOpacity
-            style={[styles.button, pinType === "INFO" && styles.activeButton]}
-            onPress={() => setPinType("INFO")}
+            key={pin.id}
+            style={[styles.pin, { left: pin.position.x, top: pin.position.y }]}
+            onPress={() => {
+              if (pin.type === "LINK") {
+                Linking.openURL(pin.content).catch((err) =>
+                  console.error("Failed to open URL:", err)
+                );
+              }
+            }}
           >
-            <Text style={styles.buttonText}>INFO</Text>
+            <Pin
+              type={pin.type}
+              content={pin.content}
+              isDeleteMode={isDeleteMode}
+              onDelete={() => deletePin(pin.id)}
+            />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, pinType === "IMAGE" && styles.activeButton]}
-            onPress={() => setPinType("IMAGE")}
-          >
-            <Text style={styles.buttonText}>IMAGE</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, pinType === "LINK" && styles.activeButton]}
-            onPress={() => setPinType("LINK")}
-          >
-            <Text style={styles.buttonText}>LINK</Text>
-          </TouchableOpacity>
+        ))}
+
+        <View style={styles.pinPanel}>
+          <Text style={styles.header}>Choose Pin Type</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, pinType === "INFO" && styles.activeButton]}
+              onPress={() => setPinType("INFO")}
+            >
+              <Text style={styles.buttonText}>INFO</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                pinType === "IMAGE" && styles.activeButton,
+              ]}
+              onPress={() => setPinType("IMAGE")}
+            >
+              <Text style={styles.buttonText}>IMAGE</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, pinType === "LINK" && styles.activeButton]}
+              onPress={() => setPinType("LINK")}
+            >
+              <Text style={styles.buttonText}>LINK</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                pinType === "AUDIO" && styles.activeButton,
+              ]}
+              onPress={() => setPinType("AUDIO")}
+            >
+              <Text style={styles.buttonText}>AUDIO</Text>
+            </TouchableOpacity>
+          </View>
+
+          {pinType === "INFO" && (
+            <TextInput
+              style={styles.input}
+              placeholder="Enter text for pin"
+              value={pinContent || ""}
+              onChangeText={setPinContent}
+            />
+          )}
+          {pinType === "IMAGE" && (
+            <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
+              <Text style={styles.buttonText}>
+                {imageUri ? "Change Image" : "Pick Image"}
+              </Text>
+            </TouchableOpacity>
+          )}
+          {pinType === "LINK" && (
+            <TextInput
+              style={styles.input}
+              placeholder="Enter link URL"
+              value={pinContent || ""}
+              onChangeText={setPinContent}
+            />
+          )}
+          {pinType === "AUDIO" && (
+            <TouchableOpacity
+              style={[styles.button]}
+              onPress={() => {
+                if (recording) {
+                  stopRecording();
+                } else {
+                  startRecording();
+                }
+              }}
+            >
+              <Text style={styles.buttonText}>
+                {recording ? "Stop Recording" : "Record Audio"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
-
-        {pinType === "INFO" && (
-          <TextInput
-            style={styles.input}
-            placeholder="Enter text for pin"
-            value={pinContent}
-            onChangeText={setPinContent}
-          />
-        )}
-        {pinType === "IMAGE" && (
-          <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
-            <Text style={styles.buttonText}>
-              {imageUri ? "Change Image" : "Pick Image"}
-            </Text>
-          </TouchableOpacity>
-        )}
-        {pinType === "LINK" && (
-          <TextInput
-            style={styles.input}
-            placeholder="Enter link URL"
-            value={pinContent}
-            onChangeText={setPinContent}
-          />
-        )}
-
-        {/* Save button */}
-        <TouchableOpacity onPress={saveMap} style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Save Map</Text>
-        </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -186,7 +305,15 @@ const styles = StyleSheet.create({
   image: {
     width: width,
     height: height,
-    resizeMode: "cover",
+    resizeMode: "contain",
+  },
+  deleteToggleButton: {
+    position: "absolute",
+    top: 32,
+    right: 60,
+    flexDirection: "row",
+    alignItems: "center",
+    zIndex: 100,
   },
   pinPanel: {
     position: "absolute",
@@ -198,17 +325,8 @@ const styles = StyleSheet.create({
   },
   pin: {
     position: "absolute",
-    zIndex: 1,
-  },
-  pinText: {
-    backgroundColor: Colors.lightGray,
-    padding: 5,
-    borderRadius: 5,
-  },
-  pinImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
   },
   header: {
     fontSize: 18,
@@ -231,16 +349,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.secondary,
   },
   buttonText: {
-    color: Colors.lightGray,
-    fontSize: 16,
-  },
-  saveButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: Colors.primary,
-    borderRadius: 8,
-  },
-  saveButtonText: {
     color: Colors.lightGray,
     fontSize: 16,
   },

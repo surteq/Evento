@@ -7,13 +7,17 @@ import {
   TouchableOpacity,
   Dimensions,
   Linking,
-  TextInput, // Add TextInput for editing
+  TextInput,
+  ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { Link } from "expo-router";
-import { useMapsContext } from "@/app/contexts/MapsContext"; // Import updateMap
+import { Link, router } from "expo-router";
+import { useMapsContext } from "@/app/contexts/MapsContext";
+import CloseButton from "@/components/CloseButton";
+import Pin from "@/components/PinProps";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type ViewMapModalRouteParams = {
   mapId: string;
@@ -54,25 +58,17 @@ const ViewMapModal = () => {
   };
 
   return (
+    // <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
     <View style={styles.container}>
+      <CloseButton onPress={router.back} />
       <Image source={{ uri: map.image }} style={styles.image} />
-      {/* Map Pins rendering */}
+
       {map.pins?.map((pin) => (
         <TouchableOpacity
           key={pin.id}
           style={[styles.pin, { left: pin.position.x, top: pin.position.y }]}
         >
-          {pin.type === "INFO" && (
-            <Text style={styles.pinText}>{pin.content}</Text>
-          )}
-          {pin.type === "IMAGE" && (
-            <Image source={{ uri: pin.content }} style={styles.pinImage} />
-          )}
-          {pin.type === "LINK" && (
-            <TouchableOpacity onPress={() => Linking.openURL(pin.content)}>
-              <Ionicons name="link-outline" size={24} color={Colors.primary} />
-            </TouchableOpacity>
-          )}
+          <Pin type={pin.type} content={pin.content} />
         </TouchableOpacity>
       ))}
 
@@ -83,7 +79,7 @@ const ViewMapModal = () => {
               style={styles.input}
               value={newTitle}
               onChangeText={setNewTitle}
-              onBlur={handleSave} // Save changes on blur (when editing is finished)
+              onBlur={handleSave}
               autoFocus
             />
           ) : (
@@ -142,6 +138,7 @@ const ViewMapModal = () => {
         </Link>
       </View>
     </View>
+    // </SafeAreaView>
   );
 };
 
@@ -171,7 +168,7 @@ const styles = StyleSheet.create({
   image: {
     width: width,
     height: height,
-    resizeMode: "cover",
+    resizeMode: "contain",
   },
   detailsContainer: {
     position: "absolute",
@@ -183,11 +180,11 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: "row",
-    alignItems: "center", // Keep icon aligned with text
+    alignItems: "center",
   },
   descriptionContainer: {
     flexDirection: "row",
-    alignItems: "center", // Keep icon aligned with text
+    alignItems: "center",
   },
   header: {
     fontSize: 24,
@@ -200,7 +197,7 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   editIcon: {
-    marginLeft: 20, // Adjust margin to control distance between text and icon
+    marginLeft: 20,
   },
   editButton: {
     position: "absolute",

@@ -9,4 +9,5 @@ export default {
   dark: "#141518",
   gray: "#626D77",
   lightGray: "#D8DCE2",
+  link: "#2980b9",
 };
