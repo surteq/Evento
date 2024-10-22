@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,37 +11,25 @@ import {
 import Colors from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useMapsContext } from "@/app/contexts/MapsContext";
-import { useUserContext } from "@/app/contexts/UserContext";
 import { Link } from "expo-router";
 import { Swipeable } from "react-native-gesture-handler";
+import { useUserContext } from "@/app/contexts/UserContext";
 import { MapData } from "@/service/MapData";
 
-const MyMaps = () => {
+const SharedMaps = () => {
   const { maps } = useMapsContext();
   const { currentUser } = useUserContext();
-
   if (!currentUser) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>No user is currently logged in.</Text>
-      </View>
-    );
+    return <Text>No current user found.</Text>;
   }
-
-  const userMaps = maps.filter((map) => map.ownerId === currentUser.id);
-
-  const deleteMap = (id: string) => {
-    // Logika do usunięcia mapy
-  };
-
-  const renderMapItem: ListRenderItem<MapData> = ({ item }) => (
+  const sharedMaps = maps.filter((map) =>
+    map.sharedWith?.includes(currentUser.id)
+  );
+  const renderSharedMapItem: ListRenderItem<MapData> = ({ item }) => (
     <Swipeable
       renderRightActions={() => (
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => deleteMap(item.id)}
-        >
-          <Text style={styles.deleteButtonText}>Delete</Text>
+        <TouchableOpacity style={styles.deleteButton} onPress={() => {}}>
+          <Text style={styles.deleteButtonText}>Remove</Text>
         </TouchableOpacity>
       )}
     >
@@ -68,20 +56,18 @@ const MyMaps = () => {
       </Link>
     </Swipeable>
   );
-
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>My Maps</Text>
+      <Text style={styles.header}>Shared Maps</Text>
       <FlatList
-        data={userMaps}
-        renderItem={renderMapItem}
+        data={sharedMaps}
+        renderItem={renderSharedMapItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.mapList}
       />
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -139,12 +125,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
-  errorText: {
-    color: "red",
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 20,
-  },
 });
 
-export default MyMaps;
+export default SharedMaps;

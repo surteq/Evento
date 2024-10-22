@@ -21,21 +21,7 @@ import Pin from "@/components/PinProps";
 import UndoButton from "@/components/UndoButton";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-interface PinData {
-  id: string;
-  type: "INFO" | "IMAGE" | "LINK" | "AUDIO";
-  content: string;
-  position: { x: number; y: number };
-}
-
-interface Map {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  pins?: PinData[];
-}
+import { PinData } from "@/service/MapData";
 
 type EditMapModalRouteParams = {
   mapId: string;
@@ -176,124 +162,123 @@ const EditMapModal = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
-      <View style={styles.container}>
-        <CloseButton onPress={router.back} />
-        <UndoButton onPress={undoLastPin} />
+    // <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={styles.container}>
+      <CloseButton onPress={router.back} />
+      <UndoButton onPress={undoLastPin} />
+      <TouchableOpacity
+        onPress={toggleDeleteMode}
+        style={styles.deleteToggleButton}
+      >
+        <Ionicons
+          name="trash"
+          size={24}
+          color={isDeleteMode ? Colors.primary : Colors.gray}
+        />
+        <Text>{isDeleteMode ? "Exit Delete Mode" : "Delete Mode"}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={handleMapPress}>
+        {/* <Image source={{ uri: map?.image }} style={styles.image} /> */}
+        <Image
+          source={
+            typeof map?.image === "string" ? { uri: map.image } : map?.image
+          }
+          style={styles.image}
+        />
+      </TouchableOpacity>
+
+      {map?.pins?.map((pin: PinData) => (
         <TouchableOpacity
-          onPress={toggleDeleteMode}
-          style={styles.deleteToggleButton}
+          key={pin.id}
+          style={[styles.pin, { left: pin.position.x, top: pin.position.y }]}
+          onPress={() => {
+            if (pin.type === "LINK") {
+              Linking.openURL(pin.content).catch((err) =>
+                console.error("Failed to open URL:", err)
+              );
+            }
+          }}
         >
-          <Ionicons
-            name="trash"
-            size={24}
-            color={isDeleteMode ? Colors.primary : Colors.gray}
+          <Pin
+            type={pin.type}
+            content={pin.content}
+            isDeleteMode={isDeleteMode}
+            onDelete={() => deletePin(pin.id)}
           />
-          <Text>{isDeleteMode ? "Exit Delete Mode" : "Delete Mode"}</Text>
         </TouchableOpacity>
+      ))}
 
-        <TouchableOpacity onPress={handleMapPress}>
-          <Image source={{ uri: map?.image }} style={styles.image} />
-        </TouchableOpacity>
-
-        {map?.pins?.map((pin: PinData) => (
+      <View style={styles.pinPanel}>
+        <Text style={styles.header}>Choose Pin Type</Text>
+        <View style={styles.buttonContainer}>
           <TouchableOpacity
-            key={pin.id}
-            style={[styles.pin, { left: pin.position.x, top: pin.position.y }]}
+            style={[styles.button, pinType === "INFO" && styles.activeButton]}
+            onPress={() => setPinType("INFO")}
+          >
+            <Text style={styles.buttonText}>INFO</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, pinType === "IMAGE" && styles.activeButton]}
+            onPress={() => setPinType("IMAGE")}
+          >
+            <Text style={styles.buttonText}>IMAGE</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, pinType === "LINK" && styles.activeButton]}
+            onPress={() => setPinType("LINK")}
+          >
+            <Text style={styles.buttonText}>LINK</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, pinType === "AUDIO" && styles.activeButton]}
+            onPress={() => setPinType("AUDIO")}
+          >
+            <Text style={styles.buttonText}>AUDIO</Text>
+          </TouchableOpacity>
+        </View>
+
+        {pinType === "INFO" && (
+          <TextInput
+            style={styles.input}
+            placeholder="Enter text for pin"
+            value={pinContent || ""}
+            onChangeText={setPinContent}
+          />
+        )}
+        {pinType === "IMAGE" && (
+          <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
+            <Text style={styles.buttonText}>
+              {imageUri ? "Change Image" : "Pick Image"}
+            </Text>
+          </TouchableOpacity>
+        )}
+        {pinType === "LINK" && (
+          <TextInput
+            style={styles.input}
+            placeholder="Enter link URL"
+            value={pinContent || ""}
+            onChangeText={setPinContent}
+          />
+        )}
+        {pinType === "AUDIO" && (
+          <TouchableOpacity
+            style={[styles.button]}
             onPress={() => {
-              if (pin.type === "LINK") {
-                Linking.openURL(pin.content).catch((err) =>
-                  console.error("Failed to open URL:", err)
-                );
+              if (recording) {
+                stopRecording();
+              } else {
+                startRecording();
               }
             }}
           >
-            <Pin
-              type={pin.type}
-              content={pin.content}
-              isDeleteMode={isDeleteMode}
-              onDelete={() => deletePin(pin.id)}
-            />
+            <Text style={styles.buttonText}>
+              {recording ? "Stop Recording" : "Record Audio"}
+            </Text>
           </TouchableOpacity>
-        ))}
-
-        <View style={styles.pinPanel}>
-          <Text style={styles.header}>Choose Pin Type</Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, pinType === "INFO" && styles.activeButton]}
-              onPress={() => setPinType("INFO")}
-            >
-              <Text style={styles.buttonText}>INFO</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.button,
-                pinType === "IMAGE" && styles.activeButton,
-              ]}
-              onPress={() => setPinType("IMAGE")}
-            >
-              <Text style={styles.buttonText}>IMAGE</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, pinType === "LINK" && styles.activeButton]}
-              onPress={() => setPinType("LINK")}
-            >
-              <Text style={styles.buttonText}>LINK</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.button,
-                pinType === "AUDIO" && styles.activeButton,
-              ]}
-              onPress={() => setPinType("AUDIO")}
-            >
-              <Text style={styles.buttonText}>AUDIO</Text>
-            </TouchableOpacity>
-          </View>
-
-          {pinType === "INFO" && (
-            <TextInput
-              style={styles.input}
-              placeholder="Enter text for pin"
-              value={pinContent || ""}
-              onChangeText={setPinContent}
-            />
-          )}
-          {pinType === "IMAGE" && (
-            <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
-              <Text style={styles.buttonText}>
-                {imageUri ? "Change Image" : "Pick Image"}
-              </Text>
-            </TouchableOpacity>
-          )}
-          {pinType === "LINK" && (
-            <TextInput
-              style={styles.input}
-              placeholder="Enter link URL"
-              value={pinContent || ""}
-              onChangeText={setPinContent}
-            />
-          )}
-          {pinType === "AUDIO" && (
-            <TouchableOpacity
-              style={[styles.button]}
-              onPress={() => {
-                if (recording) {
-                  stopRecording();
-                } else {
-                  startRecording();
-                }
-              }}
-            >
-              <Text style={styles.buttonText}>
-                {recording ? "Stop Recording" : "Record Audio"}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
+        )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

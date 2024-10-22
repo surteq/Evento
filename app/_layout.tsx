@@ -13,6 +13,7 @@ import * as SecureStore from "expo-secure-store";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { UserProvider } from "./contexts/UserContext";
 import { MapsProvider } from "./contexts/MapsContext";
+import { NotificationsProvider } from "@/app/contexts/NotificationsContext";
 import CustomHeader from "@/components/CustomHeader";
 import CustomHeaderMap from "@/components/CloseButton";
 
@@ -181,6 +182,26 @@ const InitialLayout = () => {
           ),
         }}
       />
+      <Stack.Screen
+        name="(authenticated)/(modals)/Notifications"
+        options={{
+          presentation: "transparentModal",
+          animation: "fade",
+          title: "",
+          headerTransparent: true,
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="(authenticated)/(modals)/ShareMapModal"
+        options={{
+          presentation: "transparentModal",
+          animation: "fade",
+          title: "",
+          headerTransparent: true,
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 };
@@ -191,14 +212,16 @@ const RootLayoutNav = () => {
       publishableKey={CLERK_PUBLISHABLE_KEY!}
       tokenCache={tokenCache}
     >
-      <MapsProvider>
-        <UserProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <StatusBar barStyle={"light-content"} />
-            <InitialLayout />
-          </GestureHandlerRootView>
-        </UserProvider>
-      </MapsProvider>
+      <UserProvider>
+        <MapsProvider>
+          <NotificationsProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <StatusBar barStyle={"light-content"} />
+              <InitialLayout />
+            </GestureHandlerRootView>
+          </NotificationsProvider>
+        </MapsProvider>
+      </UserProvider>
     </ClerkProvider>
   );
 };

@@ -13,26 +13,16 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useMapsContext } from "@/app/contexts/MapsContext";
+import { MapData } from "@/service/MapData";
+import { useUserContext } from "@/app/contexts/UserContext";
 
-interface Pin {
-  id: string;
-  type: "INFO" | "IMAGE" | "LINK";
-  content: string;
-  position: { x: number; y: number };
-}
-
-interface Map {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  pins: Pin[];
-}
 const CreateMap = () => {
   const { addMap } = useMapsContext();
+  const { currentUser } = useUserContext();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<string | null>(null);
+
   const router = useRouter();
 
   const pickImage = async () => {
@@ -50,11 +40,17 @@ const CreateMap = () => {
   };
 
   const saveMap = () => {
-    const newMap: Map = {
+    if (!currentUser) {
+      console.log("No current user found");
+      return;
+    }
+    const newMap: MapData = {
       id: Date.now().toString(),
       title,
       description,
       image: image || "",
+      ownerId: currentUser.id,
+      sharedWith: [],
       pins: [],
     };
     addMap(newMap);

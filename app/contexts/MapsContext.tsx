@@ -1,25 +1,15 @@
-import React, { createContext, useState, useContext } from "react";
-
-interface Pin {
-  id: string;
-  type: "INFO" | "IMAGE" | "LINK" | "AUDIO";
-  content: string;
-  position: { x: number; y: number };
-}
-
-interface Map {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  pins: Pin[];
-}
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { MapData, PinData } from "@/service/MapData";
+import { MockMapService } from "@/service/MockMapService"; // Import your service
+import { useUserContext } from "@/app/contexts/UserContext";
+import { addNotification } from "@/service/NotificationsService";
 
 interface MapsContextType {
-  maps: Map[];
-  addMap: (map: Map) => void;
-  updateMap: (updatedMap: Map) => void;
-  updateMapPins: (mapId: string, pins: Pin[]) => void;
+  maps: MapData[]; // Use MapData consistently
+  addMap: (map: MapData) => void;
+  updateMap: (updatedMap: MapData) => void;
+  updateMapPins: (mapId: string, pins: PinData[]) => void;
+  shareMapWithUser: (mapId: string, userId: string) => void;
 }
 
 const MapsContext = createContext<MapsContextType | undefined>(undefined);
@@ -27,19 +17,43 @@ const MapsContext = createContext<MapsContextType | undefined>(undefined);
 export const MapsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [maps, setMaps] = useState<Map[]>([]);
+  const { currentUser } = useUserContext();
+  const mockMapService = new MockMapService();
 
-  const addMap = (map: Map) => {
+  // const [maps, setMaps] = useState<MapData[]>(() => {
+  //   const defaultMaps = currentUser
+  //     ? mockMapService.getMapsByOwner(currentUser.id)
+  //     : [];
+  //   return defaultMaps.map((map: MapData) => ({
+  //     id: map.id,
+  //     title: map.title,
+  //     description: map.description,
+  //     image: map.image,
+  //     pins: map.pins as PinData[],
+  //     ownerId: map.ownerId,
+  //     sharedWith: map.sharedWith || [],
+  //   }));
+  // });
+  const [maps, setMaps] = useState<MapData[]>([]);
+
+  useEffect(() => {
+    if (currentUser) {
+      const defaultMaps = mockMapService.getMapsByOwner(currentUser.id);
+      setMaps(defaultMaps);
+    }
+  }, [currentUser]);
+
+  const addMap = (map: MapData) => {
     setMaps((prevMaps) => [map, ...prevMaps]);
   };
 
-  const updateMap = (updatedMap: Map) => {
+  const updateMap = (updatedMap: MapData) => {
     setMaps((prevMaps) =>
       prevMaps.map((map) => (map.id === updatedMap.id ? updatedMap : map))
     );
   };
 
-  const updateMapPins = (mapId: string, pins: Pin[]) => {
+  const updateMapPins = (mapId: string, pins: PinData[]) => {
     setMaps((prevMaps) =>
       prevMaps.map((map) =>
         map.id === mapId ? { ...map, pins: [...pins] } : map
@@ -47,8 +61,47 @@ export const MapsProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
+  // const shareMapWithUser = (mapId: string, userId: string) => {
+  //   if (currentUser) {
+  //     console.log("Attempting to share map with:", userId); // Add log here
+  //     mockMapService.shareMapWithUser(
+  //       mapId,
+  //       userId,
+  //       currentUser,
+  //       addNotification
+  //     );
+  //   }
+
+  //   setMaps([...maps]);
+  // };
+
+  const shareMapWithUser = (mapId: string, userId: string) => {
+    if (currentUser) {
+      console.log("Attempting to share map with:", userId);
+
+      const result = mockMapService.shareMapWithUser(
+        mapId,
+        userId,
+        currentUser,
+        addNotification
+      );
+
+      if (result) {
+        console.log(`Map shared successfully with user: ${userId}`);
+      } else {
+        console.log(`Failed to share the map with user: ${userId}`);
+      }
+
+      setMaps([...maps]);
+    } else {
+      console.log("No current user found.");
+    }
+  };
+
   return (
-    <MapsContext.Provider value={{ maps, addMap, updateMap, updateMapPins }}>
+    <MapsContext.Provider
+      value={{ maps, addMap, updateMap, updateMapPins, shareMapWithUser }}
+    >
       {children}
     </MapsContext.Provider>
   );

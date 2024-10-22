@@ -18,6 +18,8 @@ import { useMapsContext } from "@/app/contexts/MapsContext";
 import CloseButton from "@/components/CloseButton";
 import Pin from "@/components/PinProps";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useUserContext } from "@/app/contexts/UserContext";
+import { MapData } from "@/service/MapData";
 
 type ViewMapModalRouteParams = {
   mapId: string;
@@ -46,7 +48,7 @@ const ViewMapModal = () => {
 
   const handleSave = () => {
     if (map) {
-      const updatedMap = {
+      const updatedMap: MapData = {
         ...map,
         title: newTitle,
         description: newDescription,
@@ -61,7 +63,11 @@ const ViewMapModal = () => {
     // <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
     <View style={styles.container}>
       <CloseButton onPress={router.back} />
-      <Image source={{ uri: map.image }} style={styles.image} />
+      <Image
+        source={typeof map.image === "string" ? { uri: map.image } : map.image}
+        style={styles.image}
+      />
+      {/* <Image source={{ uri: map.image }} style={styles.image} /> */}
 
       {map.pins?.map((pin) => (
         <TouchableOpacity
@@ -120,7 +126,21 @@ const ViewMapModal = () => {
             </>
           )}
         </View>
-
+        <Link
+          href={{
+            pathname: "/(authenticated)/(modals)/ShareMapModal",
+            params: { mapId: map.id },
+          }}
+          asChild
+        >
+          <TouchableOpacity style={styles.shareButton}>
+            <Ionicons
+              name="share-social-outline"
+              size={34}
+              color={Colors.lightGray}
+            />
+          </TouchableOpacity>
+        </Link>
         <Link
           href={{
             pathname: "/(authenticated)/(modals)/EditMapModal",
@@ -204,6 +224,13 @@ const styles = StyleSheet.create({
     top: 32,
     right: 50,
     zIndex: 1,
+  },
+  shareButton: {
+    position: "absolute",
+    top: 32,
+    right: 100,
+    zIndex: 1,
+    marginTop: 2,
   },
   input: {
     fontSize: 24,

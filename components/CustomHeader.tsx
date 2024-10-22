@@ -31,7 +31,10 @@ const CustomHeader = () => {
             )}
           </TouchableOpacity>
         </Link>
-        <View style={styles.searchSection}>
+        <View style={styles.logoSection}>
+          <Text style={styles.header}>Evento</Text>
+        </View>
+        {/* <View style={styles.searchSection}>
           <Ionicons
             style={styles.searchIcon}
             name="search"
@@ -43,8 +46,16 @@ const CustomHeader = () => {
             placeholder="Search"
             placeholderTextColor={Colors.dark}
           />
-        </View>
-
+        </View> */}
+        <Link
+          style={styles.circle}
+          href="/(authenticated)/(modals)/Notifications"
+          asChild
+        >
+          <TouchableOpacity>
+            <FontAwesome name="comment" size={20} color={"#8A2BE2"} />
+          </TouchableOpacity>
+        </Link>
         <Link style={styles.circle} href={"/home"} replace asChild>
           <TouchableOpacity>
             <Ionicons name="home" size={20} color={"#8A2BE2"} />
@@ -69,6 +80,19 @@ const styles = StyleSheet.create({
     height: 60,
     paddingHorizontal: 20,
   },
+  header: {
+    width: "100%",
+    fontSize: 40,
+    fontWeight: "900",
+    textTransform: "uppercase",
+    color: Colors.primary,
+    textAlign: "center",
+    textShadowColor: "rgba(207, 156, 214, 0.9)",
+    textShadowOffset: { width: 5, height: 5 },
+    textShadowRadius: 10,
+    marginBottom: 10,
+    marginLeft: 20,
+  },
   roundBtn: {
     width: 40,
     height: 40,
@@ -77,10 +101,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  searchSection: {
+  logoSection: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: Colors.lightGray,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",

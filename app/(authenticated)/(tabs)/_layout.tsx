@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 import React from "react";
 import { Stack, Tabs } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 // import { BlurView } from "expo-blur";
 import CustomHeader from "@/components/CustomHeader";
@@ -67,11 +67,11 @@ const Layout = () => {
       />
 
       <Tabs.Screen
-        name="notifications"
+        name="SharedMaps"
         options={{
-          title: "Notifications",
+          title: "Shared maps",
           tabBarIcon: ({ size, color }) => (
-            <FontAwesome name="comment" size={size} color={color} />
+            <FontAwesome5 name="map-marked-alt" size={size} color={color} />
           ),
           header: () => <CustomHeader />,
           headerTransparent: true,
