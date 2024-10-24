@@ -53,6 +53,16 @@ export class MockMapService {
         mapId,
       });
 
+      addNotification({
+        id: Date.now().toString(),
+        message: `You shared the map titled '${map.title}' with ${userId}.`,
+        timestamp: new Date(),
+        type: "self_action",
+        fromUserId: currentUser.id,
+        toUserId: currentUser.id,
+        mapId: mapId,
+      });
+
       return true;
     }
     return false;
@@ -66,13 +76,13 @@ export class MockMapService {
     return false;
   }
 
-  addMap(newMap: MapData): void {
-    this.maps.push(newMap);
-  }
+  // addMap(newMap: MapData): void {
+  //   this.maps.push(newMap);
+  // }
 
-  updateMap(updatedMap: MapData): void {
-    this.maps = this.maps.map((map) =>
-      map.id === updatedMap.id ? updatedMap : map
-    );
-  }
+  // updateMap(updatedMap: MapData): void {
+  //   this.maps = this.maps.map((map) =>
+  //     map.id === updatedMap.id ? updatedMap : map
+  //   );
+  // }
 }

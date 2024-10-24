@@ -183,7 +183,7 @@ const InitialLayout = () => {
         }}
       />
       <Stack.Screen
-        name="(authenticated)/(modals)/Notifications"
+        name="(authenticated)/(modals)/NotificationsModal"
         options={{
           presentation: "transparentModal",
           animation: "fade",
@@ -194,6 +194,16 @@ const InitialLayout = () => {
       />
       <Stack.Screen
         name="(authenticated)/(modals)/ShareMapModal"
+        options={{
+          presentation: "transparentModal",
+          animation: "fade",
+          title: "",
+          headerTransparent: true,
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="(authenticated)/(modals)/AddFriendsModal"
         options={{
           presentation: "transparentModal",
           animation: "fade",

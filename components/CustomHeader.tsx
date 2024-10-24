@@ -49,16 +49,20 @@ const CustomHeader = () => {
         </View> */}
         <Link
           style={styles.circle}
-          href="/(authenticated)/(modals)/Notifications"
+          href="/(authenticated)/(modals)/NotificationsModal"
           asChild
         >
           <TouchableOpacity>
             <FontAwesome name="comment" size={20} color={"#8A2BE2"} />
           </TouchableOpacity>
         </Link>
-        <Link style={styles.circle} href={"/home"} replace asChild>
+        <Link
+          style={styles.circle}
+          href={"/(authenticated)/(modals)/AddFriendsModal"}
+          asChild
+        >
           <TouchableOpacity>
-            <Ionicons name="home" size={20} color={"#8A2BE2"} />
+            <Ionicons name="person-add" size={20} color={"#8A2BE2"} />
           </TouchableOpacity>
         </Link>
 

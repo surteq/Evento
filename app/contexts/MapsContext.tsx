@@ -61,20 +61,6 @@ export const MapsProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
-  // const shareMapWithUser = (mapId: string, userId: string) => {
-  //   if (currentUser) {
-  //     console.log("Attempting to share map with:", userId); // Add log here
-  //     mockMapService.shareMapWithUser(
-  //       mapId,
-  //       userId,
-  //       currentUser,
-  //       addNotification
-  //     );
-  //   }
-
-  //   setMaps([...maps]);
-  // };
-
   const shareMapWithUser = (mapId: string, userId: string) => {
     if (currentUser) {
       console.log("Attempting to share map with:", userId);

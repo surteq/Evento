@@ -4,41 +4,21 @@ import {
   Text,
   FlatList,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   Image,
 } from "react-native";
 import { useUserContext } from "@/app/contexts/UserContext";
-import {
-  getFriendsByUserId,
-  sendFriendRequest,
-} from "@/service/MockUserService";
 import { UserData } from "@/service/UserData";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 
 const Friends = () => {
-  const { currentUser } = useUserContext();
-  const [friends, setFriends] = useState<UserData[]>([]);
+  const { currentUser, friends } = useUserContext();
   const [searchText, setSearchText] = useState("");
 
-  useEffect(() => {
-    if (currentUser) {
-      const userFriends = getFriendsByUserId(currentUser.id);
-
-      const filteredFriends = userFriends.filter((friend) =>
-        friend.username.toLowerCase().includes(searchText.toLowerCase())
-      );
-
-      setFriends(filteredFriends);
-    }
-  }, [currentUser, searchText]);
-
-  const handleAddFriend = (friendId: string) => {
-    if (currentUser) {
-      sendFriendRequest(currentUser.id, friendId);
-    }
-  };
+  const filteredFriends = friends.filter((friend) =>
+    friend.username.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const renderFriend = ({ item }: { item: UserData }) => (
     <View style={styles.friendContainer}>
@@ -49,19 +29,11 @@ const Friends = () => {
         />
         <Text style={styles.friendName}>{item.username}</Text>
       </View>
-
-      <TouchableOpacity
-        style={styles.addFriendButton}
-        onPress={() => handleAddFriend(item.id)}
-      >
-        <Ionicons name="person-add" size={24} color={Colors.primary} />
-      </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      {/* Search Input */}
       <View style={styles.searchSection}>
         <Ionicons
           style={styles.searchIcon}
@@ -79,7 +51,7 @@ const Friends = () => {
       </View>
 
       <FlatList
-        data={friends}
+        data={filteredFriends}
         keyExtractor={(item) => item.id}
         renderItem={renderFriend}
       />
@@ -133,11 +105,6 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     marginRight: 20,
-  },
-  addFriendButton: {
-    alignSelf: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 8,
   },
 });
 

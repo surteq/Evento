@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -14,35 +14,39 @@ import Colors from "@/constants/Colors";
 
 const NotificationsModal = () => {
   const { notifications, markAsRead } = useNotificationsContext();
+  console.log(
+    "Rendering NotificationsModal with notifications:",
+    notifications
+  );
   const router = useRouter();
 
-  const renderNotification = ({ item }: { item: NotificationData }) => (
-    <TouchableOpacity
-      onPress={() => {
-        if (item.mapId) {
-          router.push({
-            pathname: "/(authenticated)/(modals)/ViewMapModal",
-            params: { mapId: item.mapId },
-          });
-        }
-        markAsRead(item.id);
-      }}
-      style={styles.notificationItem}
-    >
-      <Text>{item.message}</Text>
-      <Text>{new Date(item.timestamp).toLocaleString()}</Text>
-    </TouchableOpacity>
-  );
+  // Handle different notification types, including maps, friends, and self actions
+  const renderNotification = ({ item }: { item: NotificationData }) => {
+    const handlePress = () => {
+      markAsRead(item.id);
+    };
+
+    return (
+      <TouchableOpacity onPress={handlePress} style={styles.notificationItem}>
+        <Text>{item.message}</Text>
+        <Text>{new Date(item.timestamp).toLocaleString()}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <CloseButton onPress={router.back} />
       <Text style={styles.header}>Notifications</Text>
-      <FlatList
-        data={notifications}
-        renderItem={renderNotification}
-        keyExtractor={(item) => item.id}
-      />
+      {notifications.length === 0 ? (
+        <Text>No notifications yet.</Text>
+      ) : (
+        <FlatList
+          data={notifications}
+          renderItem={renderNotification}
+          keyExtractor={(item) => item.id}
+        />
+      )}
     </View>
   );
 };
